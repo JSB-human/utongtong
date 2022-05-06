@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName, Modal, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -23,8 +23,12 @@ import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../typ
 import LinkingConfiguration from './LinkingConfiguration';
 import MakeTeam from '../screens/MakeTeam';
 import JoinTeam from '../screens/JoinTeam';
+import AddProduct from '../screens/AddProduct';
+import StartPage from '../screens/StartPage';
+import { color } from '@rneui/base';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+  
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
@@ -42,15 +46,22 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        gestureEnabled : false
+      }}
+      initialRouteName="Start"      
+    >
+      <Stack.Screen name="Start" component={StartPage} options={{headerShown: false}}  />
       <Stack.Screen name="Login" component={Login} options={{headerShown: false}}  />
       <Stack.Screen name="Home" component={HomePage} options={{headerShown: false}}  />
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Modal" component={ModalScreen} options={{title :'설정'}} />
         <Stack.Screen name="MakeTeam" component={MakeTeam} options={{title:'팀 생성'}} />
         <Stack.Screen name="JoinTeam" component={JoinTeam} options={{title:'팀 참가'}}/>
+        <Stack.Screen name="AddProduct" component={AddProduct} options={{title:'항목 추가'}} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -69,14 +80,19 @@ function BottomTabNavigator() {
     <BottomTab.Navigator
       initialRouteName="TabOne"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: 'black',
       }}>
       <BottomTab.Screen
         name="TabOne"
         component={TabOneScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
           title: '멤버',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ focused, color , size }) => 
+          <FontAwesome5
+          name="user"
+          size={size}
+          color={ focused ? color : 'gray'}
+        />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -84,8 +100,8 @@ function BottomTabNavigator() {
                 opacity: pressed ? 0.5 : 1,
               })}>
               <FontAwesome5
-                name="info-circle"
-                size={25}
+                name="cog"
+                size={20}
                 color={Colors[colorScheme].text}
                 style={{ marginRight: 15 }}
               />
@@ -96,17 +112,41 @@ function BottomTabNavigator() {
       <BottomTab.Screen
         name="TabTwo"
         component={TabTwoScreen}
-        options={{
+        options={({ navigation }: RootTabScreenProps<'TabTwo'>) => ({
           title: '배달',
-          tabBarIcon: ({ color }) => <TabBarIcon name="truck" color={color} />,
-        }}
+          tabBarIcon: ({ focused, color , size }) => 
+          <FontAwesome5
+          name="truck"
+          size={size}
+          color={ focused ? color : 'gray'}
+          />,
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate('AddProduct')}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <FontAwesome5
+                name="plus"
+                size={20}
+                color={Colors[colorScheme].text}
+                style={{ marginRight: 15 }}
+              />
+            </Pressable>
+          ),
+        })}
       />
       <BottomTab.Screen 
         name="TabThree"
         component={TabThreeScreen}
         options={{
           title : '기록',
-          tabBarIcon: ({ color }) =>  <TabBarIcon name="history" color={color} />,
+          tabBarIcon: ({ focused, color , size }) => 
+          <FontAwesome5
+          name="clock"
+          size={size}
+          color={ focused ? color : 'gray'}
+          />,
         }}
       />
     </BottomTab.Navigator>

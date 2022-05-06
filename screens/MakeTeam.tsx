@@ -1,8 +1,8 @@
 import { Button } from "@rneui/base";
 import { useState } from "react";
-import { StyleSheet, TextInput } from "react-native";
+import { Alert, StyleSheet, TextInput } from "react-native";
 import { Text, View } from "../components/Themed";
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, onValue, ref, set } from 'firebase/database';
 import { FirebaseApp } from "../firebaseConfig";
 import { getAuth } from "@firebase/auth";
 import { useEffect } from "react";
@@ -16,6 +16,7 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
     const [userName, setUserName] = useState<string | null>();
     const [uid, setUid] = useState<string | null>();
     const [photo, setPhoto] = useState<string | null>();
+    const [isExist, setIsExist] = useState<boolean>(false);
 
     useEffect(() => {
         const auth = getAuth();
@@ -34,26 +35,43 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
     }, [userName])
 
     const ButtonClick = () => {
-        const db = getDatabase();
-        set(ref(db, 'party/'+teamname), {
-            teamname : teamname,
-            maker : uid,
-            makername : userName
-        }).then(()=>{
-            set(ref(db, 'member/'+uid),{
-                teamname : teamname,
-                name : userName,
-                image : photo
-            })
-        }).then(()=>{
-            set(ref(db, 'party/'+teamname+'/mem/'+uid),{
-                member : userName,
-                image : photo
-            })
-            .then(() => {
-                navigation.navigate('Root');
-            })
-        })
+        if(teamname !== ''){
+            console.log('팀 탈퇴 event')
+            const db = getDatabase();
+            const list = ref(db, 'party/'+teamname);
+            onValue(list, (snapshot) => {
+                try {
+                    if(!snapshot.exists()){
+                        set(ref(db, 'party/'+teamname), {
+                            teamname : teamname,
+                            maker : uid,
+                            makername : userName,
+                            makerimage : photo
+                        }).then(()=>{
+                            set(ref(db, 'member/'+uid),{
+                                teamname : teamname,
+                                name : userName,
+                                image : photo
+                            })
+                        }).then(()=>{
+                           
+                            navigation.navigate('Root');
+                            
+                        })
+                    }else{
+                        setIsExist(true);
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                }
+            },{onlyOnce : true})
+        }else{
+            Alert.alert(
+                "알림",
+                "팀명을 입력해주세요."
+            )
+        }
     }
 
     return(
@@ -65,7 +83,12 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
                 onChangeText={(text)=>{setTeamname(text)}}
             />
             <Text style={styles.subtext}>회사명이나 팀명을 적어주세요.</Text>
-
+            {
+                isExist ? 
+                <Text style={styles.error}>이미 존재하는 팀명입니다.</Text>
+                :
+                <View></View>
+            }
             <Button 
                 title="생성"
                 buttonStyle={{
@@ -102,4 +125,9 @@ const styles = StyleSheet.create({
         
         fontSize : 20
     },
+    error : {
+        fontSize : 15,
+        color : 'red',
+        marginBottom : 20
+    }
 })

@@ -26,7 +26,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permissions" : [],
+      "useNextNotificationsApi" : true,
       "package" : "com.jsb.utongtong",
+      "googleServicesFile": "./google-services.json",
       "versionCode" : 1
     },
     "web": {
