@@ -19,7 +19,6 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
     const auth = getAuth();
     const user = auth.currentUser;
     const displayName = user?.displayName;
-
     const db = getDatabase();
     const list = ref(db, 'member/'+user?.uid);
     onValue(list, (snapshot) => {
@@ -53,7 +52,7 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
       backHandler.remove();
     }
 
-  },[isAuthenticated,teamName])
+  },[isAuthenticated,teamName,userName])
 
   
 

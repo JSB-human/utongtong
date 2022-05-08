@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { RootStackScreenProps } from "../types";
 import { Ionicons } from "@expo/vector-icons";
+import { registerForPushNotificationsAsync } from "../components/Notification";
 
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
@@ -25,11 +26,13 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
     const [userImage, setUserImage] = useState<string | null | undefined>('');
     const [userName, setUserName] = useState<string | null | undefined>('');
     const [memberCount, setMemberCount] = useState<Array<number>>([]);
+    const [expoPushToken, setExpoPushToken] = useState<string>('');
 
     const auth = getAuth();
     // const user = auth.currentUser;
 
     useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
         const db = getDatabase();
         const listener = onAuthStateChanged(auth, async (user) => {
             setIsAuthenticated(!!user);
@@ -101,11 +104,13 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
                         set(ref(db, 'member/'+uid), {
                             image : userImage,
                             name : userName,
-                            teamname : teamname
+                            teamname : teamname,
+                            expoPushToken : expoPushToken
                         }).then(()=>{
                             set(ref(db, 'party/'+teamname+'/mem/'+uid), {
                                 image : userImage,
                                 member : userName,
+                                expoPushToken : expoPushToken
                             }).then(()=>{
                                 navigation.navigate('Root');
                             })

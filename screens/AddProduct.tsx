@@ -26,6 +26,8 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
 
     const [nowTime, setNowTime] = useState<string>(moment(new Date()).format('hh시 mm분 ss초'));
 
+    const [tokenList, setTokenList] = useState<Array<string>>();
+
     useEffect(() => {
         const auth = getAuth();
         const user = auth.currentUser;
@@ -43,6 +45,20 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
             setWriter(data.name);
             setUserImg(data.image);
         })
+        if(teamName !== ''){
+            const TokenList = ref(db, 'party/'+teamName+'/mem')
+            onValue(TokenList, (snapshot) => {
+                const data2 = snapshot.val();
+                let arr = new Array();
+                snapshot.forEach((child) => {
+                    // console.log('child', child.val().expoPushToken);
+                    arr.push(child.val().expoPushToken);
+                    setTokenList(arr);
+                })
+            })
+        }
+
+    // },[])
     },[teamName,writer])
 
     const AddBtn = () => {
@@ -65,8 +81,32 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
             remarks : remarks,
             writeTime : nowTime
         }).then(() => {
+            tokenList.forEach((val, i) => {
+                // console.log(tokenList[i])
+                sendPushNotification(tokenList[i]);
+            })
+        }).then(() => {
             navigation.navigate('Root');
         })
+    }
+
+    async function sendPushNotification(expoPushToken: any) {
+      const message = {
+        to: expoPushToken,
+        sound: 'default',
+        title: writer,
+        body: place + ' : ' + product + ' ('+qty+')',
+        data: { someData: 'goes here' },
+      };
+      await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Accept-encoding': 'gzip, deflate',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
     }
 
     return(
@@ -117,6 +157,7 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
                     backgroundColor : '#00BCD4'
                 }}
             />
+         
         </View>
     )
 }

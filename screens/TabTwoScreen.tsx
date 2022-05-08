@@ -211,7 +211,7 @@ export default function TabTwoScreen({ navigation }: RootTabScreenProps<'TabTwo'
                     PlaceholderContent={<ActivityIndicator/>}
                     containerStyle={styles.userImg}
                   />
-                  <Text style={styles.writer}>홍길동</Text>
+                  <Text style={styles.writer}>{value.writer}</Text>
                 </View>
                 <View style={styles.waitWriter}>
                   <Text style={styles.gray}>작성 시간 : </Text>

@@ -2,41 +2,48 @@ import { Button, Image } from '@rneui/base';
 import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps} from '../types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FirebaseApp, web_clientId } from '../firebaseConfig';
 import * as WebBrouser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { onAuthStateChanged, getAuth, GoogleAuthProvider, signInWithCredential} from 'firebase/auth';
-
 FirebaseApp;
 WebBrouser.maybeCompleteAuthSession();
+const useProxy = true;
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
 
 export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
-
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        clientId : web_clientId,
+        clientId : web_clientId
       })
-      
+
     useEffect(()=>{
+      const auth = getAuth();
+      const currentUser = auth.currentUser; 
       if(response?.type === 'success'){
         const { id_token } = response.params;
-
-        const auth = getAuth();
         const provider = GoogleAuthProvider;
         const credential = provider.credential(id_token);
         signInWithCredential(auth, credential);
         
-        navigation.navigate("Home");
-        // onAuthStateChanged(auth, user =>{
-        //   if(user != null){
-        //     // console.log(user);
-            
-        //   }
-        // })
+        // navigation.navigate("Home");
       }
-    }, [response])
+      const listener = onAuthStateChanged(auth, async (user) => {
+        setIsAuthenticated(!!user);
+        // console.log('cu',currentUser);
+        if(currentUser === null || currentUser === undefined){
+            // navigation.navigate("Login");
+        }else{
+            navigation.navigate("Home");
+        }
+    });
+
+    return () => {
+      listener();
+    }
+    }, [response,isAuthenticated])
 
     return (
         <View style={styles.container}>
@@ -65,7 +72,9 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
                 source={require('../assets/images/google_login.png')}
                 containerStyle={styles.loginBtn}
                 PlaceholderContent={<ActivityIndicator />}
-                onPress={() => promptAsync()}
+                onPress={
+                  () => promptAsync()
+                }
               />
             </View>
         </View>

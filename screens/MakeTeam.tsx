@@ -7,6 +7,7 @@ import { FirebaseApp } from "../firebaseConfig";
 import { getAuth } from "@firebase/auth";
 import { useEffect } from "react";
 import { RootStackScreenProps } from "../types";
+import { registerForPushNotificationsAsync } from "../components/Notification";
 
 FirebaseApp;
 
@@ -17,8 +18,10 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
     const [uid, setUid] = useState<string | null>();
     const [photo, setPhoto] = useState<string | null>();
     const [isExist, setIsExist] = useState<boolean>(false);
+    const [expoPushToken, setExpoPushToken] = useState<string>('');
 
     useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
         const auth = getAuth();
         const user = auth.currentUser;
         const displayName= user?.displayName;
@@ -46,17 +49,17 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
                             teamname : teamname,
                             maker : uid,
                             makername : userName,
-                            makerimage : photo
+                            makerimage : photo,
+                            makerToken : expoPushToken
                         }).then(()=>{
                             set(ref(db, 'member/'+uid),{
                                 teamname : teamname,
                                 name : userName,
-                                image : photo
+                                image : photo,
+                                expoPushToken : expoPushToken
+                            }).then(()=>{
+                                navigation.navigate('Root');
                             })
-                        }).then(()=>{
-                           
-                            navigation.navigate('Root');
-                            
                         })
                     }else{
                         setIsExist(true);

@@ -50,7 +50,6 @@ export default function ModalScreen({navigation} : RootStackScreenProps<'Modal'>
             setMemberNames(nameArr);
             setMemberImages(imageArr);
           })
-          
         }
       })
     })
@@ -149,7 +148,7 @@ export default function ModalScreen({navigation} : RootStackScreenProps<'Modal'>
                    console.log(memberUids[index]);
                    updates['member/'+memberUids[index]] = updateData;
                  }) 
-                 console.log(updates);
+                //  console.log(updates);
                  update(ref(db),updates)
                  .then(() => {
                    navigation.navigate("Home"); 

@@ -26,14 +26,27 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions" : [],
+      "permissions" : ["ACCESS_NOTIFICATION_POLICY"],
       "useNextNotificationsApi" : true,
       "package" : "com.jsb.utongtong",
       "googleServicesFile": "./google-services.json",
       "versionCode" : 1
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "config" : {
+        "firebase" : {
+          "apiKey": "AIzaSyD68oZxGTV6gwixjJPeMhGiDeqmMxbUFps",
+          "authDomain": "distributionking-32d8b.firebaseapp.com",
+          "databaseURL": "https://distributionking-32d8b-default-rtdb.asia-southeast1.firebasedatabase.app",
+          "projectId": "distributionking-32d8b",
+          "storageBucket": "distributionking-32d8b.appspot.com",
+          "messagingSenderId": "936052798276",
+          "appId": "1:936052798276:web:4b21f999cefa98d7121d11",
+          "measurementId": "G-2TMYKT7DTL"
+        }
+      }
+
     }
   }
 }
