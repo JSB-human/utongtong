@@ -4,11 +4,13 @@ import { Platform } from 'react-native';
 
 
 export async function registerForPushNotificationsAsync() {
+  // console.log('n tsx')
     let token;
     if (Constants.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {
+        // console.log('!granted');
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
@@ -17,7 +19,7 @@ export async function registerForPushNotificationsAsync() {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      // console.log(token);
+      // console.log('aa',token);
     } else {
       alert('Must use physical device for Push Notifications');
     }
@@ -36,7 +38,7 @@ export async function registerForPushNotificationsAsync() {
 
   // Can use this function below, OR use Expo's Push Notification Tool-> https://expo.dev/notifications
 export async function sendPushNotification(expoPushToken: any) {
-  console.log(expoPushToken)
+  // console.log(expoPushToken)
 //   // 키 나중에 가리기
 //   await fetch('https://fcm.googleapis.com/fcm/send', {
 //   method: 'POST',

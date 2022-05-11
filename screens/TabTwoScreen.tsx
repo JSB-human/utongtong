@@ -608,5 +608,4 @@ const styles = StyleSheet.create({
   nodataTxt : {
     fontSize : 20
   }
-  
 });

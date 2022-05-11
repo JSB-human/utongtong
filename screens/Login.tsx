@@ -3,47 +3,56 @@ import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps} from '../types';
 import { useEffect, useState } from 'react';
-import { FirebaseApp, web_clientId } from '../firebaseConfig';
+import { android_clientId, expo_clientId, FirebaseApp, web_clientId, web_secret } from '../firebaseConfig';
 import * as WebBrouser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { onAuthStateChanged, getAuth, GoogleAuthProvider, signInWithCredential} from 'firebase/auth';
+import { onAuthStateChanged, getAuth, GoogleAuthProvider, signInWithCredential, User} from 'firebase/auth';
+import * as AuthSession from 'expo-auth-session';
+
+
 FirebaseApp;
 WebBrouser.maybeCompleteAuthSession();
-const useProxy = true;
+
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
+const redirectUri = AuthSession.makeRedirectUri({useProxy:true});
 
 export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
+  console.log('uri >> ',redirectUri);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        clientId : web_clientId
+        clientId : web_clientId,
+        // webClientId : web_clientId,
+        // androidClientId : android_clientId,
+        // expoClientId : expo_clientId,
+        redirectUri: redirectUri  
       })
-
+    const [userData, setUserData] = useState<User>();
     useEffect(()=>{
       const auth = getAuth();
       const currentUser = auth.currentUser; 
+      setUserData(currentUser);
       if(response?.type === 'success'){
         const { id_token } = response.params;
         const provider = GoogleAuthProvider;
         const credential = provider.credential(id_token);
         signInWithCredential(auth, credential);
-        
-        // navigation.navigate("Home");
+        navigation.navigate("Home");
       }
-      const listener = onAuthStateChanged(auth, async (user) => {
-        setIsAuthenticated(!!user);
-        // console.log('cu',currentUser);
-        if(currentUser === null || currentUser === undefined){
-            // navigation.navigate("Login");
-        }else{
-            navigation.navigate("Home");
-        }
-    });
+      // console.log('cu',userData);
+      // const listener = onAuthStateChanged(auth, async (user) => {
+      //   setIsAuthenticated(!!user);
+      //   if(userData === null || userData === undefined){
+      //       // navigation.navigate("Login");
+      //   }else{
+      //     navigation.navigate("Home");
+      //   }
+    // });
 
-    return () => {
-      listener();
-    }
-    }, [response,isAuthenticated])
+    // return () => {
+    //   listener();
+    // }
+    }, [response,userData])
 
     return (
         <View style={styles.container}>
@@ -73,8 +82,13 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
                 containerStyle={styles.loginBtn}
                 PlaceholderContent={<ActivityIndicator />}
                 onPress={
-                  () => promptAsync()
+                  () => promptAsync({useProxy : true})
+                  // {}
                 }
+              />
+              <Text>{redirectUri}</Text>
+              <Button title="홈페이지"
+                onPress={()=>navigation.navigate("Home")}
               />
             </View>
         </View>

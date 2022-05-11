@@ -22,6 +22,7 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
 
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+        // console.log(expoPushToken);
         const auth = getAuth();
         const user = auth.currentUser;
         const displayName= user?.displayName;
