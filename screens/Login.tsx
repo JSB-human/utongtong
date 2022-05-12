@@ -16,15 +16,17 @@ WebBrouser.maybeCompleteAuthSession();
 
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
-// const redirectUri = AuthSession.makeRedirectUri({useProxy:true});
+const redirectUri = AuthSession.makeRedirectUri({useProxy:true});
 
 export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        webClientId : web_clientId,
-        androidClientId : android_clientId,
-        expoClientId : expo_clientId,
-        // redirectUri: redirectUri, 
+        clientId : web_clientId,  
+      // iosClientId : web_clientId,
+        // webClientId : web_clientId,
+        // androidClientId : android_clientId,
+        // expoClientId : expo_clientId,
+        redirectUri: redirectUri, 
       })
     const [userData, setUserData] = useState<User>();
 
@@ -95,7 +97,7 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
   //   }
   // };
 
-  // const onPress = () => {
+  // const GoogleBtn = () => {
   //   if (user) {
   //     signOutAsync();
   //   } else {
@@ -149,7 +151,10 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
                 containerStyle={styles.loginBtn}
                 PlaceholderContent={<ActivityIndicator />}
                 onPress={
-                  () => promptAsync()
+                  () => promptAsync({
+                    useProxy : true
+                  })
+                  // () => GoogleBtn()
                 }
               />
               {/* <Image 
@@ -170,7 +175,7 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
                   () => naverLogin()
                 }
               /> */}
-              {/* <Text>{redirectUri}</Text> */}
+              <Text>{redirectUri}</Text>
               {/* <Button title="홈페이지"
                 onPress={()=>navigation.navigate("Home")}
               /> */}
