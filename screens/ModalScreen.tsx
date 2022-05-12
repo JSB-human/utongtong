@@ -65,6 +65,7 @@ export default function ModalScreen({navigation} : RootStackScreenProps<'Modal'>
           onPress : () => {
             const auth = getAuth();
             signOut(auth);
+            navigation.navigate('Login');
           }
         },
         {

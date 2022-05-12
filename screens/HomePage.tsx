@@ -3,7 +3,7 @@ import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import { Button } from '@rneui/base';
 import { FirebaseApp } from '../firebaseConfig';
-import {getAuth, onAuthStateChanged} from 'firebase/auth';
+import {getAuth, onAuthStateChanged, signOut} from 'firebase/auth';
 import { useState, useEffect } from 'react';
 import AnimatedLottieView from 'lottie-react-native';
 import { Image } from '@rneui/themed/dist/Image';
@@ -105,6 +105,13 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
               marginTop : 10
             }}
             onPress={() => {navigation.navigate('JoinTeam')}}
+          />
+          <Button title="로그아웃" 
+            onPress={() => {
+              const auth = getAuth();
+              signOut(auth);
+              navigation.navigate("Login");
+            }}
           />
         </View>
       </View>
