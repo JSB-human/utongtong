@@ -192,6 +192,11 @@ export default function ModalScreen({navigation} : RootStackScreenProps<'Modal'>
         :
         <View></View>
       }
+       <TouchableOpacity style={styles.block}
+        onPress={() => {navigation.navigate('UpdateUser')}}
+      >
+        <Text style={styles.text}>사용자 정보 수정</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.block}
         onPress={logout}
       >

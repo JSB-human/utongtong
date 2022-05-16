@@ -2,7 +2,7 @@
   "expo": {
     "name": "utongtong",
     "slug": "utongtong",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -26,13 +26,23 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions" : ["ACCESS_NOTIFICATION_POLICY"],
+      "permissions" : ["ACCESS_NOTIFICATION_POLICY","CAMERA, READ_EXTERNAL_STORAGE"],
       "useNextNotificationsApi" : true,
       "package" : "com.jsb.utongtong",
       "googleServicesFile": "./google-services.json",
-      "versionCode" : 1
+      "versionCode" : 3
     },
-    "plugins" : ["@react-native-google-signin/google-signin"],
+    "plugins" : [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission" : "사용자 이미지 추가를 위해 갤러리 권한을 허용해주세요."
+        }
+      ]
+      
+    
+    
+    ],
     "web": {
       "favicon": "./assets/images/favicon.png",
       "config" : {

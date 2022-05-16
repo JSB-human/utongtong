@@ -16,20 +16,20 @@ import AnimatedLottieView from 'lottie-react-native';
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
 
-const locale = {
-  name : 'ko',
-  config : {
-    months : '1월_2월_3월_4월_5월_6월_7월_8월_9월_10월_11월_12월'.split(
-      '_'
-    ),
-    weekdays : '일요일_월요일_화요일_수요일_목요일_금요일_토요일'.split('_'),
-    weekdaysShort: '일_월_화_수_목_금_토'.split('_'),
-    weekdaysMin: '일_월_화_수_목_금_토'.split('_'),
-  }
-}
+// const locale = {
+//   name : 'ko',
+//   config : {
+//     months : '1월_2월_3월_4월_5월_6월_7월_8월_9월_10월_11월_12월'.split(
+//       '_'
+//     ),
+//     weekdays : '일요일_월요일_화요일_수요일_목요일_금요일_토요일'.split('_'),
+//     weekdaysShort: '일_월_화_수_목_금_토'.split('_'),
+//     weekdaysMin: '일_월_화_수_목_금_토'.split('_'),
+//   }
+// }
 
 export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabThree'>) {
-  const [selectedDate, setSelectedDate] = useState<moment.Moment>();
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [listdata, setListdata] = useState<Array<any>>(null);
   const [teamName, setTeamName] = useState<string>('');
 
@@ -44,8 +44,6 @@ export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabTh
     }, {
       onlyOnce:true
     })
-
-
     const finishRef = ref(db, 'work/'+teamName+'/'+moment(selectedDate).format('YYYYMMDD')+'/finish');
     onValue(finishRef, (snapshot) => {
       try {
@@ -66,7 +64,6 @@ export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabTh
   return (
     <View style={styles.container}>
       <CalendarStrip
-       scrollable
       style={{height:120, paddingTop: 20, paddingBottom: 10}}
       calendarColor={'#009688'}
       calendarHeaderStyle={{color: 'white'}}
@@ -75,7 +72,6 @@ export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabTh
       highlightDateNumberStyle={{color: '#cddc39'}}
       highlightDateNameStyle={{color: '#cddc39'}}
       selectedDate={selectedDate}
-      locale={locale}
       iconContainer={{flex: 0.1}}
       onDateSelected={date => setSelectedDate(date)}
       />
@@ -140,7 +136,7 @@ export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabTh
           })
           :
           <View style={styles.nodata}>
-             <AnimatedLottieView 
+             {/* <AnimatedLottieView 
               source={require('../assets/animations/33740-sad-empty-box.json')}
               autoPlay
               loop
@@ -148,7 +144,7 @@ export default function TabThreeScreen({ navigation }: RootTabScreenProps<'TabTh
                   justifyContent:'flex-start',
                   alignSelf:'center',
               }}
-            />
+            /> */}
             <Text style={styles.nodataTxt}>데이터가 없습니다.</Text>
           </View>
 

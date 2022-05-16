@@ -26,6 +26,8 @@ import JoinTeam from '../screens/JoinTeam';
 import AddProduct from '../screens/AddProduct';
 import StartPage from '../screens/StartPage';
 import { color } from '@rneui/base';
+import Register from '../screens/Register';
+import UpdateUser from '../screens/UpdateUser';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   
@@ -57,11 +59,13 @@ function RootNavigator() {
       <Stack.Screen name="Home" component={HomePage} options={{headerShown: false}}  />
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+      <Stack.Screen name="UpdateUser" component={UpdateUser} options={{title:'회원 정보'}} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="Modal" component={ModalScreen} options={{title :'설정'}} />
         <Stack.Screen name="MakeTeam" component={MakeTeam} options={{title:'팀 생성'}} />
         <Stack.Screen name="JoinTeam" component={JoinTeam} options={{title:'팀 참가'}}/>
         <Stack.Screen name="AddProduct" component={AddProduct} options={{title:'항목 추가'}} />
+        <Stack.Screen name="Register" component={Register} options={{title:'회원가입'}} />
       </Stack.Group>
     </Stack.Navigator>
   );

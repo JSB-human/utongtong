@@ -1,5 +1,5 @@
 import { Button, Image } from '@rneui/base';
-import { ActivityIndicator, Dimensions, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Dimensions, Platform, StyleSheet, TextInput } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps} from '../types';
 import { useEffect, useState } from 'react';
@@ -8,7 +8,9 @@ import * as WebBrouser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session'
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, User } from '@firebase/auth';
-import * as GoogleSignIn from 'expo-google-sign-in';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+// import * as GoogleSignIn from 'expo-google-sign-in';
+// import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 
 FirebaseApp;
@@ -29,6 +31,9 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
         redirectUri: redirectUri, 
       })
     const [userData, setUserData] = useState<User>();
+    const [Email, setEmail] = useState('');
+    const [Password, setPassword] = useState('');
+
 
     useEffect(()=>{
       const auth = getAuth();
@@ -55,7 +60,25 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
       listener();
     }
     }, [response,isAuthenticated])
-   
+
+    const SignInWithEmail = () =>{
+      const auth = getAuth();
+      signInWithEmailAndPassword(auth, Email, Password)
+      .then((user) => {
+        // console.log(user);
+        navigation.navigate("Home");
+      })
+      .catch((err) => {
+        let errorCode = err.code;
+        if(errorCode === 'auth/wrong-password'){
+          alert('비밀번호가 틀립니다.');
+        }else if(errorCode === 'auth/invalid-email'){
+          alert('유효한 이메일 주소가 아닙니다.');
+        }else if(errorCode === 'auth/user-not-found'){
+          alert('회원을 찾을 수 없습니다.');
+        }
+      })
+    }
 
 
   // const [user, setUser] = useState(null);
@@ -146,17 +169,27 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
             />
             <View style={styles.btnView}>
               <Text style={styles.title}>로그인</Text>
-              <Image 
+              <TextInput 
+                value={Email}
+                onChangeText={(text) => setEmail(text)}
+                style={styles.textinput}
+                placeholder={"이메일@email.com"}
+              />
+              <TextInput 
+                value={Password}
+                onChangeText={(text) => setPassword(text)}
+                style={styles.textinput}
+                secureTextEntry={true}
+                placeholder={"비밀번호"}
+              />
+              {/* <Image 
                 source={require('../assets/images/google_login.png')}
                 containerStyle={styles.loginBtn}
                 PlaceholderContent={<ActivityIndicator />}
                 onPress={
-                  () => promptAsync({
-                    useProxy : true
-                  })
-                  // () => GoogleBtn()
+                  () => promptAsync()
                 }
-              />
+              /> */}
               {/* <Image 
                 source={require('../assets/images/naverBtn.png')}
                 containerStyle={styles.naverBtn}
@@ -175,10 +208,23 @@ export default function Login({ navigation }: RootStackScreenProps<'Login'>) {
                   () => naverLogin()
                 }
               /> */}
-              <Text>{redirectUri}</Text>
-              {/* <Button title="홈페이지"
-                onPress={()=>navigation.navigate("Home")}
-              /> */}
+              {/* <Text>{redirectUri}</Text> */}
+              <Button title="로그인"
+                buttonStyle={{
+                  backgroundColor : '#CDDC39',
+                  width : 250,
+                  marginBottom : 5,
+                  marginTop : 10
+                }}
+                onPress={() => SignInWithEmail()}
+              />
+              <Button title="회원가입"
+                onPress={()=>navigation.navigate("Register")}
+                buttonStyle={{
+                  backgroundColor : 'coral',
+                  width : 250
+                }}
+              />
             </View>
         </View>
     );
@@ -209,7 +255,7 @@ const styles = StyleSheet.create({
     // backgroundColor : 'black'
   },
   btnView : {
-    flex : 0.5,
+    flex : 0.7,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor : '#3F51B5',
@@ -222,5 +268,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     
+  },
+  textinput : {
+    width : 300,
+    height : 40,
+    backgroundColor : 'white',
+    margin : 5
   }
 });

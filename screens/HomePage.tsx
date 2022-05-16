@@ -3,7 +3,7 @@ import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import { Button } from '@rneui/base';
 import { FirebaseApp } from '../firebaseConfig';
-import {getAuth, onAuthStateChanged, signOut} from 'firebase/auth';
+import {getAuth, onAuthStateChanged, signOut, User} from 'firebase/auth';
 import { useState, useEffect } from 'react';
 import AnimatedLottieView from 'lottie-react-native';
 import { Image } from '@rneui/themed/dist/Image';
@@ -11,6 +11,7 @@ import { getDatabase, onValue, ref } from 'firebase/database';
 
 FirebaseApp;
 export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
+  const [userData, setUserData] = useState<User>();
   const [userName, setUserName] = useState<string | null | undefined>('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [teamName, setTeamName] = useState<string>('');
@@ -18,7 +19,9 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
   useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
+    setUserData(user);
     const displayName = user?.displayName;
+    setUserName(displayName);
     const db = getDatabase();
     const list = ref(db, 'member/'+user?.uid);
     onValue(list, (snapshot) => {
@@ -28,11 +31,16 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
         // console.log(teamName);
       }
     })
+    console.log(user);
 
     
     const listener = onAuthStateChanged(auth, async (user) => {
+      // console.log(user);
       setIsAuthenticated(!!user);
       setUserName(displayName);
+      if(!user){
+        navigation.navigate('Login');
+      }
     });
 
     const backAction = () => {
@@ -52,7 +60,7 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
       backHandler.remove();
     }
 
-  },[isAuthenticated,teamName,userName])
+  },[isAuthenticated,teamName,userName,userData])
 
   
 
@@ -80,7 +88,7 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
       />
       
       <View style={styles.bottom}>
-        <Text style={styles.title}>반갑습니다. {userName}님</Text>
+        <Text style={styles.title}>반갑습니다.</Text>
         <Text style={styles.title}>팀을 참가하거나 만들어주세요.</Text>
         <View style={styles.btns}>
           {
@@ -107,10 +115,17 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
             onPress={() => {navigation.navigate('JoinTeam')}}
           />
           <Button title="로그아웃" 
+            buttonStyle={{
+              backgroundColor : "#009688",
+              borderRadius : 15,
+              width : 400,
+              marginTop : 10
+            }}
             onPress={() => {
               const auth = getAuth();
-              signOut(auth);
-              navigation.navigate("Login");
+              signOut(auth).then(()=>{
+                navigation.navigate("Login");
+              })
             }}
           />
         </View>

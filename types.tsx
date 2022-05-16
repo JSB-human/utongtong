@@ -23,6 +23,8 @@ export type RootStackParamList = {
   JoinTeam : undefined;
   AddProduct : undefined;
   Start : undefined;
+  Register : undefined;
+  UpdateUser : undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
