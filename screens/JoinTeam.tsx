@@ -10,6 +10,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { RootStackScreenProps } from "../types";
 import { Ionicons } from "@expo/vector-icons";
 import { registerForPushNotificationsAsync } from "../components/Notification";
+import Dialog from "react-native-dialog";
 
 const chartHeight = Dimensions.get('window').height;
 const chartWidth = Dimensions.get('window').width;
@@ -27,6 +28,10 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
     const [userName, setUserName] = useState<string | null | undefined>('');
     const [memberCount, setMemberCount] = useState<Array<number>>([]);
     const [expoPushToken, setExpoPushToken] = useState<string>('');
+    const [Visible, setVisible] = useState(false);
+    const [password, setPassword] = useState('');
+    const [selectTeam, setSelectTeam] = useState('');
+    const [selectPassword, setSelectPassword] = useState('');
 
     const auth = getAuth();
     // const user = auth.currentUser;
@@ -94,7 +99,22 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
         navigation.navigate('Root')
     }
 
-    const AddPartyInfo = (teamname: any ) => {
+    const AddPartyInfo = (teamname: string, teamPwd : string) => {
+        setVisible(true);
+        setSelectTeam(teamname);
+        setSelectPassword(teamPwd);
+    }
+
+    const checkPassword = () => {
+        setVisible(false);
+        if(password === selectPassword){
+            passwordMatch(selectTeam);
+        }else{
+            Alert.alert('알림','비밀번호가 틀립니다.')
+        }
+    }
+
+    const passwordMatch = (teamname: string) =>{
         Alert.alert('알림',teamname+'에 참가하시겠습니까?',[
             {
                 text : '예',
@@ -125,29 +145,41 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
                 onPress : () => null
             }
         ])
-        
     }
 
-   const searchBtn = () => {
-    const db = getDatabase();
-    const list = ref(db, 'party/' + searchTxt);
-            onValue(list, (snapshot) => {
-                if(snapshot.exists()){
-                    const data = snapshot.val();
-                    try {
-                        // setListdata(Object.values(data));
-                        console.log('exist1');
-                    }catch{
-                        console.log('err2');
-                    } 
-                }else{
-                    Alert.prompt('알림', '검색 결과가 없습니다.')
-                }
-            })
-   }
+  
+
+
+//    const searchBtn = () => {
+//     const db = getDatabase();
+//     const list = ref(db, 'party/' + searchTxt);
+//             onValue(list, (snapshot) => {
+//                 if(snapshot.exists()){
+//                     const data = snapshot.val();
+//                     try {
+//                         // setListdata(Object.values(data));
+//                         console.log('exist1');
+//                     }catch{
+//                         console.log('err2');
+//                     } 
+//                 }else{
+//                     Alert.prompt('알림', '검색 결과가 없습니다.')
+//                 }
+//             })
+//    }
 
     return(
         <View style={styles.container}>
+            <Dialog.Container visible={Visible}>
+                    <Dialog.Title>입장</Dialog.Title>
+                    <Dialog.Description>
+                        비밀번호를 입력해주세요.
+                    </Dialog.Description>
+                    <Dialog.Input value={password} onChangeText={(text)=>{setPassword(text)}}></Dialog.Input>
+                    <Dialog.Button label="확인" onPress={()=>{checkPassword()}} />
+                    <Dialog.Button label="취소" onPress={()=>{setVisible(false)}} />
+            </Dialog.Container>
+
             {/* <Text style={styles.text}>참가할 팀</Text> */}
             {/* <View style={styles.searchView}>
                 <Input 
@@ -193,20 +225,20 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
                 <ScrollView>
                 <Text style={{color:'gray'}}>팀 리스트</Text>
                 {listdata?.map((value, i) => {
-                    // console.log('cnt > ',memberCount[i]);
+                    // console.log('cnt > ', value.leader.makername);
                     let memberCnt : number = 1 + memberCount[i];
                     return(
                         <TouchableOpacity key={i} style={styles.touch}
-                            onPress={() => AddPartyInfo(value.teamname)}
+                            onPress={() => AddPartyInfo(value.teamname, value.teamPwd)}
                         >
                             <Text style={styles.touchfont}>{value.teamname}</Text>
                             <View>
                                 <View style={styles.partyInfo}>
-                                    <Image source={{uri : value.makerimage}} 
+                                    <Image source={{uri : value.leader.makerimage}} 
                                         PlaceholderContent={<ActivityIndicator/>}
                                         containerStyle={styles.userImg}
                                     />
-                                    <Text style={styles.imgTxt}>{value.makername}</Text>
+                                    <Text style={styles.imgTxt}>{value.leader.makername}</Text>
                                 </View>
                                 <View style={styles.partyInfo2}>
                                     <Ionicons size={16} name="person"></Ionicons>
@@ -233,6 +265,9 @@ export default function JoinTeam({ navigation }: RootStackScreenProps<'JoinTeam'
         </View>
     )
 }
+
+
+
 
 const styles = StyleSheet.create({
     container : {

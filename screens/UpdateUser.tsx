@@ -7,24 +7,49 @@ import { View } from "../components/Themed";
 import * as ImagePicker from "expo-image-picker";
 import * as Clipboard from "expo-clipboard";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDatabase, onValue, push, set } from "firebase/database";
+import * as Database from 'firebase/database';
 import uuid from "react-native-uuid";
 import { RootStackScreenProps } from "../types";
+import { registerForPushNotificationsAsync } from "../components/Notification";
 
 LogBox.ignoreLogs([`Setting a timer for a long period`]);
 
 export default function UpdateUser({ navigation }: RootStackScreenProps<'UpdateUser'>) {
     const [name, setName] = useState('');
     const [image, setImage] = useState('https://firebasestorage.googleapis.com/v0/b/distributionking-32d8b.appspot.com/o/user.png?alt=media&token=21fcbb2f-6560-4e94-ad57-441eb47b5dad');
-
+    const [teamName, setTeamName] = useState('');
     const [uploading, setUploading] =useState(false);
-
+    const [expoPushToken, setExpoPushToken] = useState<string>('');
+    const [IsLeader, setIsLeader] = useState(false); 
+    
     const auth = getAuth();
     const user = auth.currentUser;
 
     useEffect(() => {
-      console.log(user);
+      registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
       setName(user.displayName);
       setImage(user.photoURL);
+
+      const db = getDatabase();
+        const list = Database.ref(db, 'member/'+user?.uid);
+        onValue(list, (snapshot) => {
+            if(snapshot.exists()){
+              const data = snapshot.val();
+              if(snapshot.child('teamname').exists()){
+                setTeamName(data.teamname);
+              }
+              if(snapshot.child('leader').exists()){
+                // console.log('leader >> ',data.leader);
+                if(data.leader === true){
+                  setIsLeader(true);
+                }else{
+                  setIsLeader(false);
+                }
+                
+              }
+            }
+        })
       
       const ready = async () => {
           if(Platform.OS !== "web"){
@@ -44,6 +69,41 @@ export default function UpdateUser({ navigation }: RootStackScreenProps<'UpdateU
         updateProfile(user,{
           displayName : name,
           photoURL : image,
+        })
+        .then(() => {
+          const db = getDatabase();
+                    try {
+                        set(Database.ref(db, 'member/'+user.uid), {
+                            image : image,
+                            name : name,
+                            teamname : teamName,
+                            expoPushToken : expoPushToken,
+                            leader : IsLeader
+                        }).then(()=>{
+                          if(IsLeader === false){
+                              if(teamName !== ''){
+                                set(Database.ref(db, 'party/'+teamName+'/mem/'+user.uid), {
+                                  image : image,
+                                  member : name,
+                                  expoPushToken : expoPushToken
+                              }).then(()=>{
+                                  navigation.navigate('Root');
+                              })
+                            }
+                          }else{
+                            if(teamName !== ''){
+                              set(Database.ref(db, 'party/'+teamName+'/leader'), {
+                                maker : name,
+                                makerToken : expoPushToken,
+                                makerimage : image,
+                                makername : name
+                            })
+                          }
+                          }      
+                        })
+                    } catch (error) {
+                        console.log(error);
+                    }
         })
         .then(() => {
           navigation.navigate('Home');
@@ -98,7 +158,7 @@ export default function UpdateUser({ navigation }: RootStackScreenProps<'UpdateU
     const handleImagePicked = async (pickerResult: any) => {
       try {
         setUploading(true);
-        console.log("picker>>",pickerResult)
+        // console.log("picker>>",pickerResult)
         if (!pickerResult.cancelled) {
           const uploadUrl = await uploadImageAsync(pickerResult.uri);
           setImage(uploadUrl);

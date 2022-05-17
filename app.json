@@ -2,7 +2,7 @@
   "expo": {
     "name": "utongtong",
     "slug": "utongtong",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -23,14 +23,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/favicon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions" : ["ACCESS_NOTIFICATION_POLICY","CAMERA, READ_EXTERNAL_STORAGE"],
       "useNextNotificationsApi" : true,
       "package" : "com.jsb.utongtong",
       "googleServicesFile": "./google-services.json",
-      "versionCode" : 3
+      "versionCode" : 5
     },
     "plugins" : [
       [

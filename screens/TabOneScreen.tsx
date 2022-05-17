@@ -14,8 +14,8 @@ FirebaseApp;
 
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
   const [teamname, setTeamname] = useState<string>('');
-  const [teamleader, setTeamleader] = useState<string>('');
-  const [leaderImg, setLeaderImg] = useState<string>('');
+  const [teamleader, setTeamleader] = useState<string | null>('');
+  const [leaderImg, setLeaderImg] = useState<string | null>('');
   const [memberList, setMemberList] = useState<Array<any>>();
 
   useEffect(() => {
@@ -33,8 +33,6 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
         const data = snapshot.val();
         if(snapshot.exists()){
           try{
-            setTeamleader(data.makername);
-            setLeaderImg(data.makerimage);
             if(snapshot.child('mem').exists()){
               setMemberList(Object.values(data.mem));
             }
@@ -43,9 +41,22 @@ export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'
           }
         }
       })
+
+      const list3 = ref(db, 'party/' + teamname + '/leader');
+      onValue(list3, (snapshot) => {
+        const leader = snapshot.val();
+        if(snapshot.exists()){
+          try {
+            setTeamleader(leader.makername);
+            setLeaderImg(leader.makerimage);
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      })
     })
 
-  }, [teamname, teamleader])
+  }, [teamname, teamleader, leaderImg])
 
   const members = memberList?.map((value, i) => {
     return(

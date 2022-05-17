@@ -31,7 +31,7 @@ export default function HomePage({ navigation }: RootStackScreenProps<'Home'>) {
         // console.log(teamName);
       }
     })
-    console.log(user);
+    // console.log(user);
 
     
     const listener = onAuthStateChanged(auth, async (user) => {

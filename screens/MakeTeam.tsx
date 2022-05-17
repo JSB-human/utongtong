@@ -14,6 +14,7 @@ FirebaseApp;
 
 export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'>){
     const [teamname, setTeamname] = useState<string>('');
+    const [teamPwd, setTeamPwd] = useState<string>('');
     const [userName, setUserName] = useState<string | null>();
     const [uid, setUid] = useState<string | null>();
     const [photo, setPhoto] = useState<string | null>();
@@ -40,7 +41,6 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
 
     const ButtonClick = () => {
         if(teamname !== ''){
-            console.log('팀 탈퇴 event')
             const db = getDatabase();
             const list = ref(db, 'party/'+teamname);
             onValue(list, (snapshot) => {
@@ -48,16 +48,23 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
                     if(!snapshot.exists()){
                         set(ref(db, 'party/'+teamname), {
                             teamname : teamname,
-                            maker : uid,
-                            makername : userName,
-                            makerimage : photo,
-                            makerToken : expoPushToken
-                        }).then(()=>{
+                            teamPwd : teamPwd,
+                        })
+                        .then(()=>{
+                            set(ref(db, 'party/'+teamname+'/leader'),{
+                                maker : uid,
+                                makername : userName,
+                                makerimage : photo,
+                                makerToken : expoPushToken
+                            })
+                        })
+                        .then(()=>{
                             set(ref(db, 'member/'+uid),{
                                 teamname : teamname,
                                 name : userName,
                                 image : photo,
-                                expoPushToken : expoPushToken
+                                expoPushToken : expoPushToken,
+                                leader : true
                             }).then(()=>{
                                 navigation.navigate('Root');
                             })
@@ -93,6 +100,13 @@ export default function MakeTeam({ navigation }: RootStackScreenProps<'MakeTeam'
                 :
                 <View></View>
             }
+            <Text style={styles.text}>방 비밀번호</Text>
+            <TextInput
+                style={styles.teampwd}
+                value={teamPwd}
+                onChangeText={(text)=>{setTeamPwd(text)}}
+            />
+
             <Button 
                 title="생성"
                 buttonStyle={{
@@ -133,5 +147,16 @@ const styles = StyleSheet.create({
         fontSize : 15,
         color : 'red',
         marginBottom : 20
+    },
+    teampwd : {
+        marginBottom : 20,
+        width : 400,
+        borderWidth : 2,
+        borderColor : 'black',
+        height : 40,
+        borderRadius : 5,
+        alignItems: 'center',
+        
+        fontSize : 20
     }
 })

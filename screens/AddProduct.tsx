@@ -25,8 +25,8 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
     const [todayTxt, setTodayTxt] = useState<string>(moment(new Date()).format('YYYYMMDD'));
 
     const [nowTime, setNowTime] = useState<string>(moment(new Date()).format('hh시 mm분 ss초'));
-
-    const [tokenList, setTokenList] = useState<Array<string>>();
+    const [LeaderToken, setLeaderToken] = useState<string>();
+    const [tokenList, setTokenList] = useState<Array<string>>([]);
 
     useEffect(() => {
         const auth = getAuth();
@@ -46,11 +46,13 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
             setUserImg(data.image);
         })
         if(teamName !== ''){
-            const TokenList = ref(db, 'party/'+teamName+'/mem')
+            const TokenList = ref(db, 'party/'+teamName)
             onValue(TokenList, (snapshot) => {
-                const data2 = snapshot.val();
+                let leaderTokenData = snapshot.child('leader').child('makerToken').val();
+                setLeaderToken(leaderTokenData);
+                
                 let arr = new Array();
-                snapshot.forEach((child) => {
+                snapshot.child('mem').forEach((child) => {
                     // console.log('child', child.val().expoPushToken);
                     arr.push(child.val().expoPushToken);
                     setTokenList(arr);
@@ -81,11 +83,15 @@ export default function AddProduct({ navigation }: RootStackScreenProps<'AddProd
             remarks : remarks,
             writeTime : nowTime
         }).then(() => {
-            tokenList.forEach((val, i) => {
-                // console.log(tokenList[i])
-                sendPushNotification(tokenList[i]);
-            })
-        }).then(() => {
+            if(tokenList !== []){
+                tokenList.forEach((val, i) => {
+                    // console.log(tokenList[i])
+                    sendPushNotification(tokenList[i]);
+                })
+            }
+            sendPushNotification(LeaderToken);
+        })
+        .then(() => {
             navigation.navigate('Root');
         })
     }
