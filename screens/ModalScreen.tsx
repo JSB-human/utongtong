@@ -34,10 +34,13 @@ export default function ModalScreen({navigation} : RootStackScreenProps<'Modal'>
           const data2 = snapshot.val();
           // console.log(data2);
           setPartyJson(data2);
-          if(user.uid === data2.maker){
-            // console.log('맞네')
-            setIsLeader(true);
+          if(snapshot.child('leader').child('maker').exists()){
+            if(user.uid === snapshot.child('leader').child('maker').val()){
+              // console.log('맞네')
+              setIsLeader(true);
+            }
           }
+         
           let uidArr = new Array();
           let nameArr = new Array();
           let imageArr = new Array();
