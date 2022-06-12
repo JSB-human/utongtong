@@ -212,8 +212,6 @@ export default function UpdateUser({ navigation }: RootStackScreenProps<'UpdateU
             />
         </View>
     )
-
-    
 }
 
 
